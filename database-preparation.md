@@ -2,6 +2,7 @@
 
 Create a new database to work with on this project, and create a table.
 
+```sql 
 mysql> create table largecsvdump (
     -> id bigint, 
     -> chain bigint,
@@ -17,7 +18,11 @@ mysql> create table largecsvdump (
     -> );
 Query OK, 0 rows affected (0.84 sec)
 
+```
+
 Notice how the table we've created has the same headers as that of our CSV file. To play safe, we'll go with the `bigint` datatype wherever applicable. 
+
+```sql
 
 mysql> describe largecsvdump;
 +------------------+-------------+------+-----+---------+-------+
@@ -37,7 +42,11 @@ mysql> describe largecsvdump;
 +------------------+-------------+------+-----+---------+-------+
 11 rows in set (0.05 sec)
 
+```
+
 We're now ready to plug in data into the table. You'll have to figure out the path of your `million_transactions.csv` file, since that's the one we'll be loading from. Since our field values are separated by commas, we want to let MySQL know.
+
+``` sql
 
 mysql> load data local infile '/home/sarupbanskota/Documents/store_crunch/million_transactions.csv'
     -> into table largecsvdump
@@ -46,12 +55,21 @@ mysql> load data local infile '/home/sarupbanskota/Documents/store_crunch/millio
 Query OK, 1000001 rows affected, 10 warnings (26.77 sec)
 Records: 1000001  Deleted: 0  Skipped: 0  Warnings: 10
 
+```
+
 Notice there are 10 warnings. You could inspect them, they arise because the first row in our CSV file was a header and didn't gel well with the table's expected datatype. We'll let go of the first row: 
+
+```sql
 
 mysql> delete from largecsvdump where id="id";
 Query OK, 1 row affected, 1 warning (3.89 sec)
 
+```
+
 Woot, we're good now. Here's how a section of the dump looks like: 
+
+```sql
+
 mysql> select * from largecsvdump limit 10;
 +-------+-------+------+----------+------------+-------+------------+-------------+----------------+------------------+----------------+
 | id    | chain | dept | category | company    | brand | date       | productsize | productmeasure | purchasequantity | purchaseamount |
@@ -69,7 +87,11 @@ mysql> select * from largecsvdump limit 10;
 +-------+-------+------+----------+------------+-------+------------+-------------+----------------+------------------+----------------+
 10 rows in set (0.07 sec)
 
+```
+
 The department, category, company and brand fields uniquely identify a product. Since we're more in products, let's merge these into one column. Before that, create a column to store the products.
+
+```sql
 
 mysql> alter table largecsvdump add column item varchar(50);
 Query OK, 0 rows affected (26.12 sec)
@@ -94,13 +116,21 @@ mysql> describe largecsvdump;
 +------------------+-------------+------+-----+---------+-------+
 12 rows in set (0.00 sec)
 
+```
+
 We're ready to concatenate the relevant columns into one item column.
+
+```sql
 
 mysql> update largecsvdump set item = concat(dept, '-', category, '-', company, '-', brand);
 Query OK, 1000000 rows affected (56.22 sec)
 Rows matched: 1000000  Changed: 1000000  Warnings: 0
 
+```
+
 Neat! Here's what happened: 
+
+```sql
 
 mysql> select dept,category,company,brand,item from largecsvdump limit 10;
 +------+----------+------------+-------+--------------------------+
@@ -118,6 +148,8 @@ mysql> select dept,category,company,brand,item from largecsvdump limit 10;
 |   73 |     7344 | 1068142161 | 20285 | 73-7344-1068142161-20285 |
 +------+----------+------------+-------+--------------------------+
 10 rows in set (0.00 sec)
+
+```
 
 We're good to go, now we can start querying our table to suit our needs.
 
