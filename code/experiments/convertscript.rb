@@ -7,7 +7,7 @@ require 'json'
 def count item_list
 	count_hash = {}
 	item_list.each do |item|
-		item = item.to_i
+		puts item
 		count_hash[item] = count_hash[item] ? count_hash[item] + 1 : 1 
 	end
 	count_hash
