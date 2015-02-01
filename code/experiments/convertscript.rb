@@ -10,12 +10,16 @@ def count item_list
 		item = item.to_i
 		count_hash[item] = count_hash[item] ? count_hash[item] + 1 : 1 
 	end
-	puts count_hash.to_json
+	count_hash
 end
 
-File.open("file") do |file|
+File.open("input_list.xp") do |file|
+	people_hash = {}
   file.each_line do |line|
-  	item_list = line.split(',')[1..-1]
-  	count item_list
+  	item_list = line.split(',')
+  	person = item_list[0]
+  	people_hash[person] = count item_list[1..-1]
 	end
+	json = people_hash.to_json
+	File.open("helloworld.xp", 'w') { |file| file.write json }
 end
