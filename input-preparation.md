@@ -26,7 +26,7 @@ The above section queries our table for distinct ids and puts them onto a text f
 File.open("idlisting") do |file|
   file.each_line do |line|
     item_list = print "Querying (#{index}/#{total_ids}). ID #{line}"
-    item_list = client.query("select distinct item from csvdump where id=#{line}")
+    item_list = client.query("select item from csvdump where id=#{line}")
     item_list.each { |entry| system "echo -ne ',#{entry["item"]}' >> input_list" }
     system "echo -n '\n' >> input_list"
     index+=1
